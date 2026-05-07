@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HashGen — AI Hashtag Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">#</div>
+        <h1 class="title">HashGen</h1>
+      </div>
+      <p class="subtitle">Transform your captions into perfect hashtags with AI-powered analysis</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Input Section -->
+      <section class="input-section">
+        <div class="input-card">
+          <label class="input-label" for="caption">Your Caption</label>
+          <div class="input-group">
+            <textarea id="caption" placeholder="e.g. Just had the most amazing sunset hike in the mountains today. Feeling so grateful for nature and fresh air 🌄"></textarea>
+            <div class="char-count" id="charCount">0</div>
+          </div>
+
+          <div class="platform-selector">
+            <label class="platform-label">Platform</label>
+            <div class="platform-options">
+              <div class="platform-option active" data-platform="instagram">
+                <span class="platform-icon">📸</span>
+                Instagram
+              </div>
+              <div class="platform-option" data-platform="tiktok">
+                <span class="platform-icon">🎵</span>
+                TikTok
+              </div>
+              <div class="platform-option" data-platform="twitter">
+                <span class="platform-icon">🐦</span>
+                Twitter/X
+              </div>
+              <div class="platform-option" data-platform="linkedin">
+                <span class="platform-icon">💼</span>
+                LinkedIn
+              </div>
+            </div>
+          </div>
+
+          <div class="examples">
+            <span class="examples-label">Try these examples:</span>
+            <div class="example-tags">
+              <span class="example-tag">🌅 Sunset hike</span>
+              <span class="example-tag">☕ Morning coffee</span>
+              <span class="example-tag">💪 Post-workout</span>
+              <span class="example-tag">✈️ Exploring Tokyo</span>
+              <span class="example-tag">🎨 Digital art</span>
+            </div>
+          </div>
+
+          <button class="generate-btn" id="generateBtn" onclick="generateHashtags()">
+            <span class="btn-text">✨ Generate Hashtags</span>
+          </button>
+
+          <div class="error-message" id="errorMsg"></div>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <section class="results-section" id="resultsSection">
+        <div class="results-header">
+          <h2 class="results-title">Generated Hashtags</h2>
+          <div class="results-count" id="resultsCount">0 hashtags</div>
+        </div>
+
+        <div class="tag-group" id="nicheGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title niche">Specific & Niche</h3>
+          </div>
+          <div class="tags-grid" id="nicheTags"></div>
+        </div>
+
+        <div class="tag-group" id="generalGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title general">General & Trending</h3>
+          </div>
+          <div class="tags-grid" id="generalTags"></div>
+        </div>
+
+        <div class="tag-group" id="powerGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title power">Power Tags</h3>
+          </div>
+          <div class="tags-grid" id="powerTags"></div>
+        </div>
+
+        <div class="copy-all-section">
+          <div class="copy-all-content">
+            <div class="all-tags-preview" id="allTagsPreview">—</div>
+            <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">Copy All</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Analyzing your caption...</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Built with Flask + NLP • HashGen</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
