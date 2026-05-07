@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HashGen — AI Hashtag Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">#</div>
+        <h1 class="title">HashGen</h1>
+      </div>
+      <p class="subtitle">Transform your captions into perfect hashtags with AI-powered analysis</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Input Section -->
+      <section class="input-section">
+        <div class="input-card">
+          <label class="input-label" for="caption">Your Caption</label>
+          <div class="input-group">
+            <textarea id="caption" placeholder="e.g. Just had the most amazing sunset hike in the mountains today. Feeling so grateful for nature and fresh air 🌄"></textarea>
+            <div class="char-count" id="charCount">0</div>
+          </div>
+
+          <div class="platform-selector">
+            <label class="platform-label">Platform</label>
+            <div class="platform-options">
+              <div class="platform-option active" data-platform="instagram">
+                <span class="platform-icon">📸</span>
+                Instagram
+              </div>
+              <div class="platform-option" data-platform="tiktok">
+                <span class="platform-icon">🎵</span>
+                TikTok
+              </div>
+              <div class="platform-option" data-platform="twitter">
+                <span class="platform-icon">🐦</span>
+                Twitter/X
+              </div>
+              <div class="platform-option" data-platform="linkedin">
+                <span class="platform-icon">💼</span>
+                LinkedIn
+              </div>
+            </div>
+          </div>
+
+          <div class="examples">
+            <span class="examples-label">Try these examples:</span>
+            <div class="example-tags">
+              <span class="example-tag">🌅 Sunset hike</span>
+              <span class="example-tag">☕ Morning coffee</span>
+              <span class="example-tag">💪 Post-workout</span>
+              <span class="example-tag">✈️ Exploring Tokyo</span>
+              <span class="example-tag">🎨 Digital art</span>
+            </div>
+          </div>
+
+          <button class="generate-btn" id="generateBtn" onclick="generateHashtags()">
+            <span class="btn-text">✨ Generate Hashtags</span>
+          </button>
+
+          <div class="error-message" id="errorMsg"></div>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <section class="results-section" id="resultsSection">
+        <div class="results-header">
+          <h2 class="results-title">Generated Hashtags</h2>
+          <div class="results-count" id="resultsCount">0 hashtags</div>
+        </div>
+
+        <div class="tag-group" id="nicheGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title niche">Specific & Niche</h3>
+          </div>
+          <div class="tags-grid" id="nicheTags"></div>
+        </div>
+
+        <div class="tag-group" id="generalGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title general">General & Trending</h3>
+          </div>
+          <div class="tags-grid" id="generalTags"></div>
+        </div>
+
+        <div class="tag-group" id="powerGroup">
+          <div class="group-header">
+            <div class="group-icon"></div>
+            <h3 class="group-title power">Power Tags</h3>
+          </div>
+          <div class="tags-grid" id="powerTags"></div>
+        </div>
+
+        <div class="copy-all-section">
+          <div class="copy-all-content">
+            <div class="all-tags-preview" id="allTagsPreview">—</div>
+            <button class="copy-all-btn" id="copyAllBtn" onclick="copyAll()">Copy All</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Loading State -->
+    <div class="loading-state" id="loadingState">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Analyzing your caption...</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Built with Flask + NLP • HashGen</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
+      color: var(--muted);
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Results */
+    .results-section { display: none; }
+    .results-section.visible { display: block; animation: fadeUp 0.4s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .results-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .badge {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+
+    /* Tag group cards */
+    .group-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 14px;
+    }
+    .group-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .group-label.niche { color: #ff9d4a; }
+    .group-label.power { color: var(--accent); }
+    .group-label.general { color: var(--accent3); }
+    .group-label .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag-pill {
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.87rem;
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      color: var(--text);
+    }
+    .tag-pill:hover {
+      background: var(--tag-hover);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .tag-pill.copied {
+      background: rgba(255,60,172,0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Copy all bar */
+    .copy-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .copy-bar-text {
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .btn-copy-all {
+      padding: 8px 20px;
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-copy-all:hover {
+      background: rgba(255,60,172,0.12);
+    }
+    .btn-copy-all.success {
+      background: rgba(255,60,172,0.15);
+      color: #fff;
+    }
+
+    /* Error */
+    .error-msg {
+      background: rgba(255,60,60,0.1);
+      border: 1px solid rgba(255,60,60,0.3);
+      border-radius: 10px;
+      color: #ff7070;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Example pills */
+    .examples-row {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin: 14px 0 0;
+    }
+    .example-chip {
+      padding: 5px 12px;
+      border-radius: 100px;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .example-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding-top: 40px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">#</div>
+      <h1>HashGen</h1>
+    </div>
+    <p class="tagline">Paste your caption — get 30 perfect hashtags in seconds</p>
+  </header>
+
+  <!-- Input Card -->
+  <div class="input-card">
+    <label class="input-label" for="caption">Your Caption</label>
+    <textarea id="caption" placeholder="e.g. Just had the most amazing sunset hike in the mountains today. Feeling so grateful for nature and fresh air 🌄"></textarea>
+    <div class="char-count"><span id="charCount">0</span> characters</div>
+
+    <div class="platform-row">
+      <div class="platform-pill active" data-platform="instagram"><span>📸</span> Instagram</div>
+      <div class="platform-pill" data-platform="twitter"><span>🐦</span> Twitter / X</div>
+      <div class="platform-pill" data-platform="tiktok"><span>🎵</span> TikTok</div>
+      <div class="platform-pill" data-platform="linkedin"><span>💼</span> LinkedIn</div>
+    </div>
+
+    <div class="examples-row">
+      <span style="font-size:0.78rem; color:var(--muted); align-self:center;">Try:</span>
+      <div class="example-chip">🌅 Sunset hike in mountains</div>
+      <div class="example-chip">☕ Morning coffee routine</div>
+      <div class="example-chip">💪 Post-workout feeling great</div>
+      <div class="example-chip">✈️ Exploring Tokyo streets</div>
+      <div class="example-chip">🎨 New digital art piece</div>
+    </div>
+
+    <div style="height:18px"></div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generateHashtags()">
+      ✦ Generate Hashtags
+    </button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <p>Analyzing your caption...</p>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+    <div class="results-header">
+      <div class="results-title">Generated Hashtags</div>
+      <div class="badge" id="countBadge">0 tags</div>
+    </div>
+
+    <div class="group-card" id="nicheGroup" style="display:none">
+      <div class="group-label niche"><span class="dot"></span> Specific</div>
+      <div class="tags-wrap" id="nicheTags"></div>
+    </div>
+
+    <div class="group-card" id="generalGroup" style="display:none">
+      <div class="group-label general"><span class="dot"></span> General & Trending</div>
+      <div class="tags-wrap" id="generalTags"></div>
+    </div>
+
+    <div class="group-card" id="powerGroup" style="display:none">
+      <div class="group-label power"><span class="dot"></span> Power Tags</div>
+      <div class="tags-wrap" id="powerTags"></div>
+    </div>
+
+    <div class="copy-bar">
+      <div class="copy-bar-text" id="allTagsPreview">—</div>
+      <button class="btn-copy-all" id="copyAllBtn" onclick="copyAll()">Copy All</button>
+    </div>
+  </div>
+
+  <footer>Built with Flask + NLP &nbsp;•&nbsp; HashGen</footer>
+</div>
+
+<script>
+  // Char counter
+  const ta = document.getElementById('caption');
+  ta.addEventListener('input', () => {
+    document.getElementById('charCount').textContent = ta.value.length;
+  });
+
+  // Platform selection
+  document.querySelectorAll('.platform-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.platform-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  // Example chips
+  document.querySelectorAll('.example-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const texts = {
+        '🌅 Sunset hike in mountains': "Just finished the most breathtaking sunset hike up the mountains today. The views were absolutely incredible and the fresh air was so refreshing.",
+        '☕ Morning coffee routine': "Starting my morning with the perfect cup of coffee. There's nothing better than a quiet morning with a good book and great coffee.",
+        '💪 Post-workout feeling great': "Crushed my workout today at the gym! Feeling stronger every day. Consistency is key when it comes to fitness goals.",
+        '✈️ Exploring Tokyo streets': "Lost in the beautiful streets of Tokyo today. The food, the culture, the people — everything is absolutely amazing here.",
+        '🎨 New digital art piece': "Finally finished my new digital art illustration. Spent hours on the details and I'm so proud of how it turned out."
+      };
+      const key = chip.textContent.trim();
+      if (texts[key]) {
+        ta.value = texts[key];
+        document.getElementById('charCount').textContent = ta.value.length;
+        ta.focus();
+      }
+    });
+  });
+
+  async function generateHashtags() {
+    const caption = ta.value.trim();
+    const errEl = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    if (!caption) {
+      errEl.textContent = '⚠ Please enter a caption first.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Get selected platform
+    const activePlatform = document.querySelector('.platform-pill.active');
+    const platform = activePlatform ? activePlatform.dataset.platform : 'instagram';
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.textContent = '⟳ Generating...';
+
+    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('resultsSection').classList.remove('visible');
+
+    try {
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption, platform })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = '⚠ ' + (data.error || 'Something went wrong.');
+        errEl.style.display = 'block';
+        return;
+      }
+
+      renderResults(data);
+    } catch (e) {
+      errEl.textContent = '⚠ Could not connect to server.';
+      errEl.style.display = 'block';
+    } finally {
+      document.getElementById('loadingState').style.display = 'none';
+      btn.disabled = false;
+      btn.textContent = '✦ Generate Hashtags';
+    }
+  }
+
+  function renderResults(data) {
+    document.getElementById('countBadge').textContent = data.count + ' tags';
+    document.getElementById('allTagsPreview').textContent = data.all_text;
+
+    const c = data.categorized;
+
+    renderGroup('nicheGroup', 'nicheTags', c.niche);
+    renderGroup('generalGroup', 'generalTags', c.general);
+    renderGroup('powerGroup', 'powerTags', c.power);
+
+    document.getElementById('resultsSection').classList.add('visible');
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function renderGroup(groupId, tagsId, tags) {
+    const group = document.getElementById(groupId);
+    const wrap = document.getElementById(tagsId);
+    if (!tags || tags.length === 0) { group.style.display = 'none'; return; }
+    group.style.display = 'block';
+    wrap.innerHTML = tags.map(t =>
+      `<div class="tag-pill" onclick="copyTag(this, '${t}')">${t}</div>`
+    ).join('');
+  }
+
+  function copyTag(el, tag) {
+    navigator.clipboard.writeText(tag).then(() => {
+      el.classList.add('copied');
+      el.textContent = '✓ ' + tag;
+      setTimeout(() => {
+        el.classList.remove('copied');
+        el.textContent = tag;
+      }, 1500);
+    });
+  }
+
+  function copyAll() {
+    const text = document.getElementById('allTagsPreview').textContent;
+    const btn = document.getElementById('copyAllBtn');
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copied!';
+      btn.classList.add('success');
+      setTimeout(() => {
+        btn.textContent = 'Copy All';
+        btn.classList.remove('success');
+      }, 2000);
+    });
+  }
+
+  // Enter to submit
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.ctrlKey) generateHashtags();
+  });
+</script>
+</body>
+</html>
